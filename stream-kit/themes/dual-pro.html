@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#141416;--canvas-edge:#1c1c1f;--surface:#1a1a1e;--surface-raised:#222228;
+  --hairline:rgba(255,255,255,.09);--hairline-strong:rgba(255,255,255,.14);
+  --text:#f4f2ef;--text-muted:rgba(244,242,239,.52);--text-dim:rgba(244,242,239,.35);
+  --accent:#e8a55c;--accent-soft:rgba(232,165,92,.22);--accent-glow:rgba(232,165,92,.35);
+  --break:#6ecf9a;--break-soft:rgba(110,207,154,.2);
+  --live:#e85d4a;--radius:16px;--radius-hole:14px;
+  --font:'Inter','Be Vietnam Pro',system-ui,sans-serif
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;font-family:var(--font);color:var(--text)}
+.mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.stage{position:relative;width:1920px;height:1080px}
+.canvas-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 1200px 800px at 50% 0%,rgba(232,165,92,.04),transparent 55%),
+    linear-gradient(180deg,var(--canvas-edge) 0%,var(--canvas) 45%,#0f0f11 100%);
+  -webkit-mask:url(#canvasMask);mask:url(#canvasMask)
+}
+.hole-frame{
+  position:absolute;background:transparent;pointer-events:none;border-radius:var(--radius-hole);
+  box-shadow:inset 0 0 0 1px var(--hairline),0 0 0 1px rgba(0,0,0,.4)
+}
+.hole-frame::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);pointer-events:none
+}
+.chip{
+  position:absolute;top:-1px;left:14px;transform:translateY(-50%);
+  padding:5px 12px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text-muted);background:var(--surface);border:1px solid var(--hairline);
+  border-radius:999px;z-index:2
+}
+.chip-live{display:inline-flex;align-items:center;gap:7px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--live);box-shadow:0 0 10px var(--live);animation:livePulse 1.8s ease-in-out infinite}
+@keyframes livePulse{50%{opacity:.45;transform:scale(.92)}}
+.card{
+  position:absolute;background:linear-gradient(165deg,var(--surface-raised) 0%,var(--surface) 100%);
+  border:1px solid var(--hairline);border-radius:var(--radius);
+  box-shadow:0 24px 64px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)
+}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim)}
+.np-body{padding:0;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.np-strip{
+  flex:0 0 96px;display:flex;align-items:center;gap:14px;padding:14px 20px 12px;
+  border-bottom:1px solid var(--hairline);min-height:0
+}
+.np-disc{
+  width:48px;height:48px;border-radius:50%;flex-shrink:0;
+  background:conic-gradient(from 200deg,#2a2622,#e8a55c 35%,#3d3530 70%,#1a1816);
+  animation:discSpin 14s linear infinite;position:relative;opacity:.95;
+  transform-origin:center center
+}
+.np-body.is-playing .np-disc{animation:discSpin 14s linear infinite,discBeatGlow var(--beat) ease-out infinite}
+.np-disc::after{content:'';position:absolute;inset:22%;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 1px var(--hairline)}
+@keyframes discSpin{to{transform:rotate(360deg)}}
+@keyframes discBeatGlow{0%,100%{filter:brightness(1)}12%{filter:brightness(1.18)}25%{filter:brightness(1)}}
+.np-strip-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.np-strip-meta .np-eyebrow{margin:0;line-height:1}
+.np-title-wrap{overflow:hidden;min-width:0}
+.np-title{
+  font-size:17px;font-weight:600;line-height:1.2;letter-spacing:-.02em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .45s ease
+}
+.np-title.fade{opacity:0}
+.np-title.marquee{text-overflow:clip;display:inline-block;min-width:100%;animation:titleMarquee 14s linear infinite}
+@keyframes titleMarquee{0%,12%{transform:translateX(0)}88%,100%{transform:translateX(var(--marquee-shift,-30%))}}
+.np-artist{font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .45s ease}
+.np-artist.fade{opacity:0}
+.np-strip .eq{flex-shrink:0;display:flex;align-items:flex-end;gap:3px;height:32px;margin:0}
+.np-strip .eq span{width:4px;border-radius:2px;background:var(--accent);opacity:.8;height:35%;transform-origin:bottom}
+.np-body.is-playing .np-strip .eq span{animation:eqBeat var(--beat) ease-out infinite}
+.np-strip .eq span:nth-child(1){animation-delay:0ms}
+.np-strip .eq span:nth-child(2){animation-delay:calc(var(--beat-num,600)*.08)}
+.np-strip .eq span:nth-child(3){animation-delay:calc(var(--beat-num,600)*.16)}
+.np-strip .eq span:nth-child(4){animation-delay:calc(var(--beat-num,600)*.24)}
+.np-strip .eq span:nth-child(5){animation-delay:calc(var(--beat-num,600)*.12)}
+@keyframes eqBeat{0%,100%{transform:scaleY(.45)}14%{transform:scaleY(1)}28%{transform:scaleY(.55)}}
+.np-strip .eq.off span{animation:none!important;height:22%;opacity:.22;transform:none}
+.np-stage{
+  flex:1;position:relative;display:flex;align-items:flex-end;justify-content:center;
+  min-height:0;padding:8px 16px 18px;overflow:hidden
+}
+.np-spotlight{
+  position:absolute;left:50%;bottom:28px;width:280px;height:200px;transform:translateX(-50%);
+  background:radial-gradient(ellipse at 50% 100%,rgba(232,165,92,.28),transparent 68%);
+  opacity:0;pointer-events:none;transition:opacity .5s ease
+}
+.np-body.is-playing:not(.np-break) .np-spotlight{opacity:1;animation:spotPulse var(--beat) ease-out infinite}
+@keyframes spotPulse{0%,100%{opacity:.75;transform:translateX(-50%) scale(1)}12%{opacity:1;transform:translateX(-50%) scale(1.05)}30%{opacity:.7}}
+.np-notes{position:absolute;inset:0;pointer-events:none;opacity:0}
+.np-body.is-playing:not(.np-break) .np-notes{opacity:1}
+.np-notes span{
+  position:absolute;font-size:18px;color:var(--accent);opacity:0;
+  text-shadow:0 0 12px var(--accent-glow)
+}
+.np-body.is-playing:not(.np-break) .np-notes .n1{left:22%;bottom:42%;animation:noteFloat calc(var(--beat)*6) ease-in infinite}
+.np-body.is-playing:not(.np-break) .np-notes .n2{left:68%;bottom:48%;animation:noteFloat calc(var(--beat)*5) ease-in infinite .4s}
+.np-body.is-playing:not(.np-break) .np-notes .n3{left:44%;bottom:55%;animation:noteFloat calc(var(--beat)*7) ease-in infinite .9s}
+@keyframes noteFloat{0%{opacity:0;transform:translateY(8px) scale(.8)}15%{opacity:.85}100%{opacity:0;transform:translateY(-52px) scale(1.1)}}
+.np-dancer{position:relative;width:200px;height:248px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.np-shadow{
+  position:absolute;bottom:4px;left:50%;width:100px;height:14px;margin-left:-50px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(0,0,0,.45),transparent 70%);transform-origin:center center
+}
+.np-mascot-wrap{width:200px;height:230px;transform-origin:50% 92%}
+.np-mascot{width:100%;height:100%;overflow:visible}
+.np-mascot .mascot-head{transform-origin:100px 118px}
+.np-mascot .mascot-ear-l,.np-mascot .mascot-ear-r{transform-origin:center bottom}
+.np-mascot .mascot-arm-l,.np-mascot .mascot-arm-r{transform-origin:top center}
+.np-mascot .mascot-tail{transform-origin:118px 198px}
+.np-mascot .mascot-lid{opacity:0}
+.np-body.is-playing:not(.np-break):not(.np-dance-off) .np-mascot-wrap{animation:danceCycle calc(var(--beat)*8) ease-in-out infinite}
+.np-body.is-playing:not(.np-break):not(.np-dance-off) .np-shadow{animation:shadowSquash var(--beat) ease-out infinite}
+.np-body.is-playing:not(.np-break):not(.np-dance-off) .mascot-head{animation:headBob calc(var(--beat)*2) ease-in-out infinite}
+.np-body.is-playing:not(.np-break):not(.np-dance-off) .mascot-ear-l{animation:earFlopL var(--beat) ease-in-out infinite}
+.np-body.is-playing:not(.np-break):not(.np-dance-off) .mascot-ear-r{animation:earFlopR var(--beat) ease-in-out infinite}
+.np-body.is-playing:not(.np-break):not(.np-dance-off) .mascot-arm-l{animation:armWaveL calc(var(--beat)*4) ease-in-out infinite}
+.np-body.is-playing:not(.np-break):not(.np-dance-off) .mascot-arm-r{animation:armWaveR calc(var(--beat)*4) ease-in-out infinite .12s}
+.np-body.is-playing:not(.np-break):not(.np-dance-off) .mascot-tail{animation:tailWag calc(var(--beat)*2) ease-in-out infinite}
+@keyframes danceCycle{
+  0%,100%{transform:translateX(0) translateY(0) rotate(0deg) scale(1,1)}
+  6%{transform:translateY(5px) scale(1.04,.92)}
+  12.5%{transform:translateY(-4px) scale(.98,1.03)}
+  25%{transform:translateX(-10px) translateY(0) scale(1,1)}
+  37.5%{transform:translateX(10px) translateY(-2px) scale(1,1)}
+  50%{transform:translateX(0) translateY(3px) scale(1.03,.94)}
+  62.5%{transform:translateX(-6px) translateY(0)}
+  75%{transform:translateX(6px) translateY(-3px)}
+  87.5%{transform:translateY(-14px) rotate(-6deg) scale(1.02,1)}
+  93%{transform:translateY(2px) rotate(0deg) scale(1.05,.9)}
+}
+@keyframes shadowSquash{0%,100%{transform:scaleX(1) scaleY(1);opacity:.55}12%{transform:scaleX(1.12) scaleY(.75);opacity:.45}25%{transform:scaleX(.95) scaleY(1)}}
+@keyframes headBob{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}
+@keyframes earFlopL{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-12deg)}}
+@keyframes earFlopR{0%,100%{transform:rotate(0deg)}50%{transform:rotate(12deg)}}
+@keyframes armWaveL{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-28deg)}50%{transform:rotate(8deg)}75%{transform:rotate(-18deg)}}
+@keyframes armWaveR{0%,100%{transform:rotate(0deg)}25%{transform:rotate(28deg)}50%{transform:rotate(-8deg)}75%{transform:rotate(18deg)}}
+@keyframes tailWag{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(18deg)}}
+.np-body.is-silent .np-mascot-wrap,.np-body.np-dance-off .np-mascot-wrap{animation:mascotBreathe 3.6s ease-in-out infinite}
+.np-body.is-silent .mascot-lid,.np-body.np-dance-off .mascot-lid{animation:mascotBlink 5.5s ease-in-out infinite}
+@keyframes mascotBreathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.01,1.02)}}
+@keyframes mascotBlink{0%,46%,48%,100%{opacity:0}47%{opacity:1}}
+.np-body.np-break .np-mascot-wrap{animation:breakStretch 4s ease-in-out infinite}
+.np-body.np-break .mascot-arm-l{animation:breakArmL 4s ease-in-out infinite;transform-origin:top center}
+.np-body.np-break .mascot-arm-r{animation:breakArmR 4s ease-in-out infinite;transform-origin:top center}
+.np-body.np-break .mascot-mouth-open{opacity:0;animation:yawnMouth 4s ease-in-out infinite}
+.np-body.np-break .mascot-mouth-smile{animation:yawnSmile 4s ease-in-out infinite}
+@keyframes breakStretch{0%,100%{transform:translateY(0)}40%{transform:translateY(-6px) scale(1.02,1.04)}70%{transform:translateY(-2px)}}
+@keyframes breakArmL{0%,100%{transform:rotate(0deg)}35%,55%{transform:rotate(-52deg)}}
+@keyframes breakArmR{0%,100%{transform:rotate(0deg)}35%,55%{transform:rotate(52deg)}}
+@keyframes yawnMouth{0%,30%,70%,100%{opacity:0}40%,60%{opacity:1}}
+@keyframes yawnSmile{0%,30%,70%,100%{opacity:1}40%,60%{opacity:0}}
+.pomo{padding:26px 28px 24px;height:100%;display:flex;flex-direction:column;align-items:center}
+.pomo-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+.ring-wrap{position:relative;width:220px;height:220px}
+.ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.08);stroke-width:6}
+.ring-fg{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke .4s ease}
+.ring-wrap.focus .ring-fg{stroke:var(--accent)}
+.ring-wrap.break .ring-fg{stroke:var(--break)}
+.ring-wrap.pulse-last .ring-fg{animation:ringPulse 1.2s ease-in-out infinite}
+@keyframes ringPulse{50%{stroke-opacity:.55;filter:drop-shadow(0 0 8px var(--accent-glow))}}
+.ring-wrap.break.pulse-last .ring-fg{animation-name:ringPulseBreak}
+@keyframes ringPulseBreak{50%{stroke-opacity:.55;filter:drop-shadow(0 0 8px var(--break-soft))}}
+.ring-center{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center
+}
+.ring-time{font-size:42px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.ring-phase{font-size:12px;font-weight:600;letter-spacing:.2em;margin-top:6px;color:var(--accent)}
+.ring-wrap.break .ring-phase{color:var(--break)}
+.pomo-meta{width:100%;margin-top:18px;text-align:center}
+.pomo-session{font-size:13px;color:var(--text-muted);margin-bottom:6px}
+.pomo-next{font-size:14px;color:var(--text-muted)}
+.pomo-next em{font-style:normal;color:var(--text);font-weight:500}
+.dots{display:flex;gap:10px;margin-top:16px;justify-content:center}
+.dots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid var(--hairline)}
+.dots span.done{background:var(--accent);border-color:var(--accent);box-shadow:0 0 12px var(--accent-soft)}
+.dots span.active{background:var(--accent-soft);border-color:var(--accent)}
+.break-veil{
+  position:absolute;background:rgba(12,12,14,.55);border-radius:var(--radius-hole);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  opacity:0;pointer-events:none;transition:opacity .7s ease;z-index:5
+}
+.break-veil.show{opacity:1}
+.break-veil-inner{max-width:80%;padding:24px}
+.break-veil h2{font-size:17px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text);line-height:1.45}
+.break-veil .veil-time{font-size:40px;font-weight:700;margin-top:20px;color:var(--break)}
+.on-air{padding:26px 32px;display:flex;flex-direction:column}
+.oa-name{font-size:30px;font-weight:700;letter-spacing:-.02em;margin-top:14px}
+.oa-topic{font-size:16px;color:var(--text-muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oa-stats{margin-top:auto;display:flex;gap:36px;font-size:14px;color:var(--text-muted)}
+.oa-stats em{font-style:normal;color:var(--accent);font-weight:600;margin-left:8px}
+</style></head><body>
+<div class="stage" id="stage">
+<svg width="0" height="0" aria-hidden="true"><defs>
+<mask id="canvasMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080">
+<rect width="1920" height="1080" fill="white"/>
+<rect x="32" y="32" width="850" height="552" fill="black"/>
+<rect x="906" y="32" width="982" height="552" fill="black"/>
+<rect x="32" y="608" width="782" height="200" fill="black"/>
+</mask></defs></svg>
+<div class="canvas-bg" aria-hidden="true"></div>
+
+<div class="hole-frame" style="left:32px;top:32px;width:850px;height:552px"><span class="chip">Display 1</span></div>
+<div class="hole-frame" style="left:906px;top:32px;width:982px;height:552px"><span class="chip">Display 2</span></div>
+<div class="hole-frame" style="left:32px;top:608px;width:782px;height:200px">
+  <span class="chip chip-live"><span class="live-dot" aria-hidden="true"></span>Cam</span>
+</div>
+
+<div class="break-veil" id="veil1" style="left:32px;top:32px;width:850px;height:552px">
+  <div class="break-veil-inner"><h2>Break · stretch, water, eyes off screen</h2><div class="veil-time mono" id="veilTime1"></div></div>
+</div>
+<div class="break-veil" id="veil2" style="left:906px;top:32px;width:982px;height:552px">
+  <div class="break-veil-inner"><h2>Break · stretch, water, eyes off screen</h2><div class="veil-time mono" id="veilTime2"></div></div>
+</div>
+
+<div class="card on-air" style="left:32px;top:832px;width:782px;height:216px">
+  <div class="eyebrow">On stream</div>
+  <div class="oa-name" id="oaName"></div>
+  <div class="oa-topic" id="oaTopic"></div>
+  <div class="oa-stats"><span>Focused today <em class="mono" id="oaFocus">0m</em></span><span>Sessions <em class="mono" id="oaSessions">0</em></span></div>
+</div>
+
+<div class="card np-body is-silent" id="npCard" style="left:838px;top:608px;width:512px;height:440px">
+  <div class="np-strip">
+    <div class="np-disc" id="npDisc" aria-hidden="true"></div>
+    <div class="np-strip-meta">
+      <div class="eyebrow np-eyebrow">Now playing</div>
+      <div class="np-title-wrap"><div id="npTitle" class="np-title">Silence · focus mode</div></div>
+      <div id="npArtist" class="np-artist" style="display:none"></div>
+    </div>
+    <div class="eq off" id="npEq" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+  <div class="np-stage" aria-hidden="true">
+    <div class="np-spotlight"></div>
+    <div class="np-notes"><span class="n1">♪</span><span class="n2">♫</span><span class="n3">♪</span></div>
+    <div class="np-dancer">
+      <div class="np-shadow"></div>
+      <div class="np-mascot-wrap">
+        <svg class="np-mascot" viewBox="0 0 200 260" aria-hidden="true">
+          <defs>
+            <radialGradient id="notHeadShine" cx="35%" cy="28%" r="65%"><stop offset="0%" stop-color="#3a3a42"/><stop offset="45%" stop-color="#121216"/><stop offset="100%" stop-color="#050506"/></radialGradient>
+            <linearGradient id="notGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f0c878"/><stop offset="100%" stop-color="#b87a38"/></linearGradient>
+            <linearGradient id="notEye" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f5d06a"/><stop offset="100%" stop-color="#c9923a"/></linearGradient>
+          </defs>
+          <g class="mascot-tail"><path d="M118 198 Q148 188 158 210 Q150 228 124 218 Z" fill="#0a0a0c"/><ellipse cx="156" cy="212" rx="7" ry="5" fill="url(#notGold)"/></g>
+          <ellipse cx="100" cy="210" rx="38" ry="34" fill="#0a0a0c"/>
+          <g class="mascot-leg-l"><ellipse cx="78" cy="238" rx="14" ry="10" fill="#08080a"/><ellipse cx="78" cy="242" rx="10" ry="5" fill="url(#notGold)" opacity=".85"/></g>
+          <g class="mascot-leg-r"><ellipse cx="122" cy="238" rx="14" ry="10" fill="#08080a"/><ellipse cx="122" cy="242" rx="10" ry="5" fill="url(#notGold)" opacity=".85"/></g>
+          <g class="mascot-arm-l"><ellipse cx="62" cy="205" rx="11" ry="16" fill="#0a0a0c" transform="rotate(-18 62 205)"/></g>
+          <g class="mascot-arm-r"><ellipse cx="138" cy="205" rx="11" ry="16" fill="#0a0a0c" transform="rotate(18 138 205)"/></g>
+          <g class="mascot-head">
+            <ellipse cx="100" cy="118" rx="72" ry="68" fill="url(#notHeadShine)"/>
+            <path d="M52 88 Q48 52 68 42 Q78 38 82 58" fill="#0a0a0c" stroke="url(#notGold)" stroke-width="2.2"/>
+            <path d="M148 88 Q152 52 132 42 Q122 38 118 58" fill="#0a0a0c" stroke="url(#notGold)" stroke-width="2.2"/>
+            <path class="mascot-ear-l" d="M62 52 L54 18 L78 38 Z" fill="url(#notGold)"/>
+            <path class="mascot-ear-r" d="M138 52 L146 18 L122 38 Z" fill="url(#notGold)"/>
+            <path d="M88 32 Q100 8 112 32 Q100 42 88 32 Z" fill="url(#notGold)"/>
+            <path d="M94 62 L100 78 L106 62 Z" fill="url(#notGold)"/>
+            <path d="M88 64 L100 76 L88 76 Z" fill="url(#notGold)" opacity=".9"/>
+            <ellipse cx="76" cy="128" rx="14" ry="9" fill="#d48a96" opacity=".55"/>
+            <ellipse cx="124" cy="128" rx="14" ry="9" fill="#d48a96" opacity=".55"/>
+            <ellipse cx="72" cy="108" rx="22" ry="24" fill="url(#notEye)"/>
+            <ellipse cx="128" cy="108" rx="22" ry="24" fill="url(#notEye)"/>
+            <ellipse cx="72" cy="112" rx="9" ry="11" fill="#141418"/>
+            <ellipse cx="128" cy="112" rx="9" ry="11" fill="#141418"/>
+            <circle cx="78" cy="104" r="5" fill="#fff" opacity=".95"/>
+            <circle cx="134" cy="104" r="5" fill="#fff" opacity=".95"/>
+            <circle cx="80" cy="106" r="2" fill="#fff"/>
+            <circle cx="136" cy="106" r="2" fill="#fff"/>
+            <g class="mascot-lid"><ellipse cx="72" cy="108" rx="22" ry="24" fill="#0a0a0c"/><ellipse cx="128" cy="108" rx="22" ry="24" fill="#0a0a0c"/></g>
+            <ellipse cx="100" cy="132" rx="8" ry="6" fill="#0a0a0c"/>
+            <path class="mascot-mouth-smile" d="M88 142 Q100 154 112 142" fill="none" stroke="#1a1a1e" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse class="mascot-mouth-open" cx="100" cy="146" rx="10" ry="8" fill="#c87888"/>
+            <ellipse cx="100" cy="150" rx="5" ry="3" fill="#e8a0a8"/>
+            <path d="M58 134 Q42 128 38 118" fill="none" stroke="url(#notGold)" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M142 134 Q158 128 162 118" fill="none" stroke="url(#notGold)" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M54 138 Q46 148 50 158" fill="none" stroke="url(#notGold)" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M146 138 Q154 148 150 158" fill="none" stroke="url(#notGold)" stroke-width="1.8" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card pomo" style="left:1374px;top:608px;width:514px;height:440px">
+  <div class="eyebrow" style="align-self:flex-start">Pomodoro</div>
+  <div class="pomo-hero">
+    <div class="ring-wrap focus" id="ringWrap">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="ring-bg" cx="60" cy="60" r="52"/>
+        <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52" stroke-dasharray="327" stroke-dashoffset="0"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-time mono" id="ringTime">00:00</div>
+        <div class="ring-phase" id="ringPhase">Focus</div>
+      </div>
+    </div>
+    <div class="pomo-meta">
+      <div class="pomo-session" id="sessionLabel">Session 1</div>
+      <div class="pomo-next" id="nextLabel"></div>
+      <div class="dots" id="sessionDots" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+(function(){
+const q=new URLSearchParams(location.search);
+const NAME=decodeURIComponent(q.get('name')||'THINH · BUILD & STUDY');
+const FORCE_BREAK=q.get('phase')==='break';
+const DANCE_OFF=q.get('dance')==='0';
+const BPM=Math.min(200,Math.max(60,parseInt(q.get('bpm')||'104',10)||104));
+const BEAT_MS=60000/BPM;
+document.documentElement.style.setProperty('--beat',BEAT_MS+'ms');
+document.documentElement.style.setProperty('--beat-num',String(BEAT_MS));
+const TEST=q.get('test')==='1';
+const CHIME_TEST=q.get('chime')==='1';
+const NP_PATH=q.get('np')?'../'+q.get('np'):'../nowplaying.json';
+const FOCUS_MIN=Math.max(1,parseInt(q.get('focus')||'50',10)||50);
+const BRK_MIN=Math.max(0,parseInt(q.get('brk')||'10',10)||10);
+const FOCUS_SEC=TEST?60:FOCUS_MIN*60;
+const BRK_SEC=TEST?30:BRK_MIN*60;
+const CYCLE_SEC=FOCUS_SEC+BRK_SEC;
+const CYCLE_MIN=CYCLE_SEC/60;
+const RING_LEN=2*Math.PI*52;
+const pad=n=>String(n).padStart(2,'0');
+const pageLoadMs=Date.now();
+
+document.getElementById('oaName').textContent=NAME;
+const npCard=document.getElementById('npCard');
+if(DANCE_OFF)npCard.classList.add('np-dance-off');
+document.getElementById('oaTopic').textContent=q.get('topic')||'Coding & studying together · pomodoro 50/10';
+
+let audioCtx=null;
+function ensureAudio(){
+  if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  return audioCtx;
+}
+
+function bellStrike(ctx,t0,freqs,gainPeak,dur){
+  const g=ctx.createGain();
+  g.connect(ctx.destination);
+  g.gain.setValueAtTime(0,t0);
+  g.gain.linearRampToValueAtTime(gainPeak,t0+0.02);
+  g.gain.exponentialRampToValueAtTime(0.001,t0+dur);
+  freqs.forEach((f,i)=>{
+    const o=ctx.createOscillator();
+    o.type='sine';
+    o.frequency.value=f;
+    const og=ctx.createGain();
+    og.gain.value=1/(i+1);
+    o.connect(og);
+    og.connect(g);
+    o.start(t0);
+    o.stop(t0+dur+0.05);
+  });
+}
+
+function playBreakChime(){
+  const ctx=ensureAudio();
+  const t=ctx.currentTime;
+  const peak=0.35;
+  bellStrike(ctx,t,[523.25,1046.5,1568],peak,1.1);
+  bellStrike(ctx,t+1.1,[587.33,1174.66],peak*0.85,1.1);
+  bellStrike(ctx,t+2.2,[659.25,1318.5],peak*0.7,1.1);
+}
+
+function playFocusChime(){
+  const ctx=ensureAudio();
+  const t=ctx.currentTime;
+  bellStrike(ctx,t,[440,880],0.28,0.9);
+  bellStrike(ctx,t+0.35,[554.37,1108.74],0.32,1.0);
+}
+
+function playSoftTick(){
+  const ctx=ensureAudio();
+  const t=ctx.currentTime;
+  const o=ctx.createOscillator();
+  const g=ctx.createGain();
+  o.type='sine';
+  o.frequency.value=880;
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.12,t+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.08);
+  o.connect(g);
+  g.connect(ctx.destination);
+  o.start(t);
+  o.stop(t+0.1);
+}
+
+function cycleEpochMs(){
+  if(TEST)return pageLoadMs;
+  const now=Date.now();
+  const alignMin=FOCUS_MIN+BRK_MIN;
+  if(60%alignMin===0){
+    const d=new Date();
+    const msIntoHour=(d.getMinutes()*60+d.getSeconds())*1000+d.getMilliseconds();
+    const posMs=msIntoHour%(CYCLE_SEC*1000);
+    return now-posMs;
+  }
+  const midnight=new Date();
+  midnight.setHours(0,0,0,0);
+  const msSince=now-midnight.getTime();
+  const posMs=msSince%(CYCLE_SEC*1000);
+  return now-posMs;
+}
+
+const EPOCH=cycleEpochMs();
+
+function pomoState(atMs){
+  if(FORCE_BREAK){
+    const left=BRK_SEC>0?BRK_SEC:600;
+    return{focus:false,leftSec:left,phaseElapsed:0,phaseTotal:BRK_SEC||600,cycleIndex:0};
+  }
+  const elapsed=Math.floor((atMs-EPOCH)/1000);
+  const pos=((elapsed%CYCLE_SEC)+CYCLE_SEC)%CYCLE_SEC;
+  const focus=pos<FOCUS_SEC;
+  const phaseElapsed=focus?pos:pos-FOCUS_SEC;
+  const phaseTotal=focus?FOCUS_SEC:BRK_SEC;
+  const leftSec=phaseTotal-phaseElapsed;
+  const cycleIndex=Math.floor(elapsed/CYCLE_SEC);
+  return{focus,leftSec,phaseElapsed,phaseTotal,cycleIndex};
+}
+
+const SESSION_KEY='dualProAnchor_'+new Date().toISOString().slice(0,10);
+let anchorCycle=null;
+try{
+  const raw=localStorage.getItem(SESSION_KEY);
+  if(raw){const o=JSON.parse(raw);if(o&&typeof o.anchorCycle==='number')anchorCycle=o.anchorCycle;}
+}catch(e){}
+function ensureAnchor(cycleIndex){
+  if(anchorCycle===null){
+    anchorCycle=cycleIndex;
+    try{localStorage.setItem(SESSION_KEY,JSON.stringify({anchorCycle}));}catch(e){}
+  }
+}
+
+let lastFocus=null;
+let tickedPreBreak=false;
+let veilOn=false;
+
+function formatHm(ms){
+  const d=new Date(ms);
+  return pad(d.getHours())+':'+pad(d.getMinutes());
+}
+
+function updatePomo(){
+  const st=pomoState(Date.now());
+  const wrap=document.getElementById('ringWrap');
+  const fg=document.getElementById('ringFg');
+  wrap.classList.toggle('focus',st.focus);
+  wrap.classList.toggle('break',!st.focus);
+  wrap.classList.toggle('pulse-last',st.leftSec<=60&&st.leftSec>0);
+  const pct=st.phaseTotal>0?st.phaseElapsed/st.phaseTotal:0;
+  fg.style.strokeDasharray=RING_LEN;
+  fg.style.strokeDashoffset=RING_LEN*(1-pct);
+  document.getElementById('ringTime').textContent=pad(Math.floor(st.leftSec/60))+':'+pad(st.leftSec%60);
+  document.getElementById('ringPhase').textContent=st.focus?'Focus':'Break';
+  ensureAnchor(st.cycleIndex);
+  const sessionNum=st.cycleIndex-anchorCycle+1;
+  document.getElementById('sessionLabel').textContent='Session '+sessionNum;
+  const focusedSec=(sessionNum-1)*FOCUS_SEC+(st.focus?st.phaseElapsed:FOCUS_SEC);
+  const fm=Math.floor(focusedSec/60);
+  document.getElementById('oaFocus').textContent=fm>=60?Math.floor(fm/60)+'h '+pad(fm%60)+'m':fm+'m';
+  document.getElementById('oaSessions').textContent=String(sessionNum);
+  const now=Date.now();
+  const phaseEnd=now+st.leftSec*1000;
+  const nextEl=document.getElementById('nextLabel');
+  if(st.focus){
+    nextEl.innerHTML='Break at <em>'+formatHm(phaseEnd)+'</em>';
+  }else{
+    nextEl.innerHTML='Back at <em>'+formatHm(phaseEnd)+'</em>';
+  }
+  const setIdx=st.cycleIndex%4;
+  const dots=document.getElementById('sessionDots').children;
+  for(let i=0;i<4;i++){
+    dots[i].classList.toggle('done',i<setIdx);
+    dots[i].classList.toggle('active',i===setIdx);
+  }
+  const vt=pad(Math.floor(st.leftSec/60))+':'+pad(st.leftSec%60);
+  document.getElementById('veilTime1').textContent=vt;
+  document.getElementById('veilTime2').textContent=vt;
+
+  if(st.focus&&st.leftSec<=10&&st.leftSec>0&&!tickedPreBreak){
+    playSoftTick();
+    tickedPreBreak=true;
+  }
+  if(!st.focus)tickedPreBreak=false;
+  if(st.focus&&st.leftSec>10)tickedPreBreak=false;
+
+  if(lastFocus!==null&&lastFocus!==st.focus){
+    if(st.focus){
+      setVeil(false);
+      playFocusChime();
+    }else{
+      setVeil(true);
+      playBreakChime();
+    }
+  }
+  if(FORCE_BREAK)setVeil(true);
+  npCard.classList.toggle('np-break',FORCE_BREAK||!st.focus);
+  lastFocus=st.focus;
+}
+
+function refreshTitleMarquee(){
+  const titleEl=document.getElementById('npTitle');
+  const wrap=titleEl.parentElement;
+  titleEl.classList.remove('marquee');
+  titleEl.style.removeProperty('--marquee-shift');
+  if(titleEl.scrollWidth>wrap.clientWidth){
+    titleEl.classList.add('marquee');
+    titleEl.style.setProperty('--marquee-shift',-(titleEl.scrollWidth-wrap.clientWidth+8)+'px');
+  }
+}
+
+function setNpPlaying(active){
+  npCard.classList.toggle('is-silent',!active);
+  npCard.classList.toggle('is-playing',active);
+}
+
+function setVeil(on){
+  veilOn=on;
+  document.getElementById('veil1').classList.toggle('show',on);
+  document.getElementById('veil2').classList.toggle('show',on);
+}
+
+let lastTrack='';
+async function nowPlaying(){
+  const titleEl=document.getElementById('npTitle');
+  const artistEl=document.getElementById('npArtist');
+  const eq=document.getElementById('npEq');
+  const disc=document.getElementById('npDisc');
+  let track='';
+  try{
+    const r=await fetch(NP_PATH+'?t='+Date.now());
+    const j=await r.json();
+    track=(j.track||'').trim();
+  }catch(e){track='';}
+  if(track===lastTrack)return;
+  const crossfade=()=>{
+    if(!track){
+      titleEl.textContent='Silence · focus mode';
+      titleEl.classList.remove('fade');
+      artistEl.style.display='none';
+      eq.classList.add('off');
+      disc.style.opacity='0.35';
+      setNpPlaying(false);
+      refreshTitleMarquee();
+      lastTrack=track;
+      return;
+    }
+    titleEl.classList.add('fade');
+    artistEl.classList.add('fade');
+    setTimeout(()=>{
+      let artist='',title=track;
+      const ix=track.indexOf(' - ');
+      if(ix>0){artist=track.slice(0,ix).trim();title=track.slice(ix+3).trim();}
+      titleEl.textContent=title;
+      artistEl.textContent=artist;
+      artistEl.style.display=artist?'block':'none';
+      titleEl.classList.remove('fade');
+      artistEl.classList.remove('fade');
+      eq.classList.remove('off');
+      disc.style.opacity='0.95';
+      setNpPlaying(true);
+      refreshTitleMarquee();
+      lastTrack=track;
+    },220);
+  };
+  crossfade();
+}
+
+function tick(){
+  updatePomo();
+}
+
+ensureAudio();
+if(FORCE_BREAK)setVeil(true);
+lastFocus=pomoState(Date.now()).focus;
+tick();
+setInterval(tick,250);
+nowPlaying();
+setInterval(nowPlaying,5000);
+if(CHIME_TEST)setTimeout(()=>playBreakChime(),2000);
+})();
+</script></body></html>

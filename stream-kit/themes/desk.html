@@ -43,7 +43,9 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;colo
 .vinyl::after{content:'';position:absolute;inset:6px;border-radius:50%;border:1px solid rgba(243,230,208,.15)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .vinyl-label{font-size:15px;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pomo-pill{font:600 15px 'Be Vietnam Pro';color:var(--lamp);padding:4px 12px;border:1px solid rgba(255,184,77,.35);border-radius:999px}
+.pomo-pill{display:inline-flex;align-items:center;gap:8px;font:600 15px 'Be Vietnam Pro';color:var(--lamp);padding:4px 12px;border:1px solid rgba(255,184,77,.35);border-radius:999px}
+.pomo-pill svg{flex-shrink:0}
+.frame-label{display:inline-block;padding:6px 14px;background:var(--paper);color:var(--ink);border:1px solid var(--paper-edge);box-shadow:0 2px 8px rgba(0,0,0,.25);font-size:18px;transform:rotate(-1deg)}
 .side-panel{background:linear-gradient(180deg,var(--paper),#e8d9c0);border:2px solid var(--paper-edge);box-shadow:var(--card-shadow);color:var(--ink)}
 .k{font:600 12px 'Be Vietnam Pro';color:var(--mute);letter-spacing:.12em;text-transform:uppercase}
 .hero-desk{inset:0;overflow:hidden}
@@ -80,7 +82,7 @@ function tomatoSvg(size,ripe,showFace){
  <circle cx="42" cy="52" r="2.5" fill="#1C1510"/><circle cx="58" cy="52" r="2.5" fill="#1C1510"/>`:'';
  return`<svg class="tomato-svg" width="${size}" height="${size}" viewBox="0 0 100 100" aria-hidden="true">
  <path d="M50 8 C45 2 38 4 42 12 C35 10 32 18 38 22 C30 24 28 34 36 38 C32 44 38 50 46 48 C44 56 52 62 58 56 C64 62 72 56 68 48 C76 50 82 42 78 36 C86 32 84 22 76 22 C80 14 72 8 66 14 C62 6 54 4 50 8Z" fill="${g}" stroke="#2A2218" stroke-width="1.5"/>
- <path d="M48 6 C50 0 54 0 56 6 C58 2 62 4 60 10 C64 12 62 18 58 16" fill="none" stroke="${vine}" stroke-width="2.5" stroke-linecap="round"/>
+ <path d="M48 6 C50 0 54 0 56 6 C58 2 62 4 60 10 C64 12 62 18 58 16" fill="none" stroke="#3D5C32" stroke-width="2.5" stroke-linecap="round"/>
  ${face}</svg>`}
 function lampHero(){return`<svg class="lamp-svg" width="280" height="420" viewBox="0 0 280 420" aria-hidden="true">
  <defs><radialGradient id="glow" cx="50%" cy="30%"><stop offset="0%" stop-color="#FFE4A8"/><stop offset="100%" stop-color="#FFB84D" stop-opacity="0"/></radialGradient></defs>
@@ -96,7 +98,7 @@ const bar=(label,slim)=>`<div class="abs bar-plank${slim?' slim':''}">
  <div class="sticky-note note" style="flex:1;min-width:0;padding:8px 14px;font-size:18px;transform:rotate(-1deg)">
   <span id="topic" class="lines" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${TOPIC||'Tonight\'s focus...'}</span></div>
  <div class="vinyl-wrap" id="npWrap"><div class="vinyl" aria-hidden="true"></div><span class="vinyl-label" id="np"></span></div>
- <span class="pomo-pill" id="pomoMini"></span><span class="mono" id="clk" style="font-size:19px;color:rgba(243,230,208,.75)"></span></div>`;
+ <span class="pomo-pill"><span id="pomoTom"></span><span id="pomoMini"></span></span><span class="mono" id="clk" style="font-size:19px;color:rgba(243,230,208,.75)"></span></div>`;
 function photoFrame(l,t,w,h,extraClass){return`<div class="abs photo-card ${extraClass||'tape-tl tape-br'}" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px"><div class="inner-cutout"></div></div>`}
 const camSide=photoFrame(1504,32,384,288,'tape-tl tape-tr');
 const V={
@@ -113,7 +115,7 @@ start:()=>`<div class="abs full desk-surface hero-desk"></div><div class="abs pa
  <div class="abs" style="right:140px;top:200px;text-align:right;z-index:2"><div class="k" style="color:var(--lamp)">Starting in</div>
  <div class="mono big-title hand" id="cd" style="font-size:96px;color:var(--lamp)">05:00</div></div>`,
 coding:()=>`${photoFrame(32,32,1440,935,'tape-tl tape-br')}
- <div class="abs note" style="left:56px;top:52px;font-size:22px;color:var(--paper);text-shadow:0 2px 8px rgba(0,0,0,.6)">~/live — coding</div>${camSide}
+ <div class="abs frame-label note" style="left:56px;top:52px">~/live — coding</div>${camSide}
  <div class="abs side-panel side" style="left:1504px;top:340px;width:384px;height:627px;padding:24px">
   <div class="k">On the sticky note</div>
   <div class="sticky-note note" style="margin:12px 0 24px;font-size:22px;transform:rotate(-2deg)">${TOPIC||'Live coding'}</div>
@@ -146,8 +148,8 @@ end:()=>`<div class="abs full desk-surface hero-desk"></div><div class="abs pape
  <div style="font-size:26px;color:rgba(243,230,208,.75);margin-bottom:36px">Thanks for studying along. Follow for the next night session.</div>
  <div class="sticky-note note" style="display:inline-block;font-size:26px;padding:14px 28px">Follow · ${NAME}</div></div>`,
 dual:()=>`${photoFrame(32,32,920,935,'tape-tl')}${photoFrame(968,32,920,935,'tape-tr')}
- <div class="abs note" style="left:52px;top:48px;font-size:20px;color:var(--paper)">Display 1</div>
- <div class="abs note" style="left:988px;top:48px;font-size:20px;color:var(--paper)">Display 2</div>
+ <div class="abs frame-label note" style="left:52px;top:48px">Display 1</div>
+ <div class="abs frame-label note" style="left:988px;top:48px">Display 2</div>
  ${photoFrame(1536,771,336,180,'tape-bl')}
  <div class="abs tag-pill" style="left:1548px;top:742px;font-size:11px">Cam</div>${bar(q.get('label')||'Live · Dual screen',true)}`};
 document.getElementById('root').innerHTML=V[S]();
@@ -156,7 +158,9 @@ if(until){const[h,m]=until.split(':').map(Number);const t=new Date();t.setHours(
 function updateTomato(ripe){
  const el=document.getElementById('tomatoBig');if(el)el.innerHTML=tomatoSvg(200,ripe,true)}
 function tick(){const c=document.getElementById('clk');if(c)c.textContent=clock();
- const p=pomo(),pm=document.getElementById('pomoMini');if(pm)pm.textContent=(p.focus?'FOCUS ':'BREAK ')+p.mm+':'+p.ss;
+ const p=pomo(),pm=document.getElementById('pomoMini'),pt=document.getElementById('pomoTom');
+ if(pt)pt.innerHTML=tomatoSvg(22,p.focus?p.ripe:.15,false);
+ if(pm)pm.textContent=(p.focus?'FOCUS ':'BREAK ')+p.mm+':'+p.ss;
  const pb=document.getElementById('pomoBig');if(pb){pb.textContent=p.mm+':'+p.ss;pb.style.color=p.focus?'var(--ink)':'var(--lamp-deep)';
   const ph=document.getElementById('phase');if(ph)ph.textContent=p.focus?'● Focus block':'○ Break time';
   const pr=document.getElementById('prog');if(pr)pr.style.width=(p.pct*100)+'%';updateTomato(p.focus?p.ripe:.2)}
