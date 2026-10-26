@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0E1116;--panel:#161B22;--line:#2A313C;--text:#E6EDF3;--mute:#8B949E;--amber:#FFB547;--mint:#5EE6A8;--sky:#6CB6FF}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;color:var(--text);font-family:'Be Vietnam Pro',sans-serif}
+.mono{font-family:'JetBrains Mono',monospace}
+.abs{position:absolute}
+.frame{border:2px solid var(--line);border-radius:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.tag{display:inline-flex;align-items:center;gap:10px;font:700 15px 'JetBrains Mono';letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.full{inset:0;background:var(--ink)}
+.grid{inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:64px 64px;opacity:.25;mask-image:radial-gradient(circle at 50% 45%,#000,transparent 75%)}
+.big{font-weight:800;letter-spacing:-.02em}
+.bar{left:32px;right:32px;bottom:20px;height:64px;display:flex;align-items:center;gap:28px;padding:0 24px}
+.bar.slim{height:52px;bottom:16px;gap:20px;padding:0 20px}
+.bar .sep{width:1px;height:28px;background:var(--line)}
+.side{left:1504px;width:384px}
+.k{font:600 13px 'JetBrains Mono';color:var(--mute);letter-spacing:.14em;text-transform:uppercase}
+.track{display:flex;gap:20px}
+.track div{flex:1;padding:22px 24px}
+.track b{display:block;font-size:26px;margin:10px 0 6px}
+.track span{color:var(--mute);font-size:17px}
+.pill{padding:4px 10px;border-radius:999px;border:1px solid var(--line);font:600 14px 'JetBrains Mono';color:var(--mute)}
+</style></head><body>
+<div id="root"></div>
+<script>
+const q=new URLSearchParams(location.search);
+const S=q.get('s')||'start', NAME=q.get('name')||'THINH · BUILD & STUDY', TOPIC=q.get('topic')||'';
+const accent={start:'var(--amber)',coding:'var(--sky)',bot:'var(--amber)',study:'var(--mint)',brb:'var(--amber)',end:'var(--amber)',dual:'var(--sky)'}[S];
+document.documentElement.style.setProperty('--accent',accent);
+const pad=n=>String(n).padStart(2,'0');
+const clock=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+function pomo(){const d=new Date(),m=d.getMinutes(),s=d.getSeconds(),focus=m<50;
+ const left=(focus?50*60:60*60)-(m*60+s);return{focus,mm:pad(Math.floor(left/60)),ss:pad(left%60),pct:focus?(m*60+s)/3000:(m*60+s-3000)/600}}
+const bar=(label,slim)=>`<div class="abs panel bar${slim?' slim':''}"><span class="tag"><i class="dot"></i>${label}</span><span class="sep"></span>
+ <span style="font-weight:800;font-size:20px">${NAME}</span><span class="sep"></span>
+ <span id="topic" style="font-size:20px;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${TOPIC}</span>
+ <span class="pill" id="np" style="display:none;max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)"></span><span class="pill" id="pomoMini"></span><span class="mono" id="clk" style="font-size:20px;color:var(--mute)"></span></div>`;
+const camFrame=`<div class="abs frame" style="left:1504px;top:32px;width:384px;height:288px;border-color:var(--accent)"></div>
+ <div class="abs" style="left:1520px;top:296px"><span class="pill" style="background:var(--ink)">CAM</span></div>`;
+const tracks=`<div class="track">
+ <div class="panel"><span class="tag" style="--accent:var(--sky)">01 · Code</span><b>Real builds</b><span>Ship features, fix bugs, no fake demos.</span></div>
+ <div class="panel"><span class="tag" style="--accent:var(--amber)">02 · Bot</span><b>AI on the job</b><span>Watch agents run tasks and earn in the wild.</span></div>
+ <div class="panel"><span class="tag" style="--accent:var(--mint)">03 · Study</span><b>Study With Me</b><span>Pomodoro 50/10 — open the book and focus together.</span></div></div>`;
+const V={
+start:()=>`<div class="abs full"></div><div class="abs grid"></div>
+ <div class="abs" style="left:160px;top:150px;right:160px">
+  <span class="tag"><i class="dot"></i>Starting soon</span>
+  <div class="big" style="font-size:112px;line-height:1.02;margin:28px 0 18px">Real code.<br>Real bots.<br><span style="color:var(--amber)">Study together.</span></div>
+  <div style="font-size:26px;color:var(--mute);margin-bottom:56px">${NAME}${TOPIC?' — today: '+TOPIC:''}</div>${tracks}</div>
+ <div class="abs" style="right:160px;top:170px;text-align:right"><div class="k">Starting in</div><div class="mono big" id="cd" style="font-size:96px;color:var(--amber)">05:00</div></div>`,
+coding:()=>`<div class="abs frame" style="left:32px;top:32px;width:1440px;height:935px"></div>
+ <div class="abs" style="left:52px;top:48px"><span class="pill" style="background:var(--ink)">~/live $ code</span></div>${camFrame}
+ <div class="abs panel side" style="top:340px;height:627px;padding:26px">
+  <div class="k">Now</div><div style="font-size:26px;font-weight:800;margin:10px 0 28px;line-height:1.25">${TOPIC||'Live coding'}</div>
+  <div class="k">Room rules</div><ul style="margin:12px 0 0 20px;color:var(--mute);font-size:18px;line-height:1.8"><li>Ask anything in chat</li><li>Code feedback welcome</li><li>No link spam</li></ul></div>${bar('Live · Code')}`,
+bot:()=>`<div class="abs frame" style="left:32px;top:32px;width:1440px;height:935px;border-color:var(--amber)"></div>
+ <div class="abs" style="left:52px;top:48px"><span class="pill" style="background:var(--ink);color:var(--amber);border-color:var(--amber)">BOT RUNNING</span></div>${camFrame}
+ <div class="abs panel side" style="top:340px;height:627px;padding:26px">
+  <div class="k">What the bot does</div><div style="font-size:26px;font-weight:800;margin:10px 0 28px;line-height:1.25">${TOPIC||'Agents pick up work, code, and report back'}</div>
+  <div class="k">You will see</div><ul style="margin:12px 0 0 20px;color:var(--mute);font-size:18px;line-height:1.8"><li>One-line job dispatch</li><li>Background runs with checks</li><li>Real output (and real revenue when it lands)</li></ul></div>${bar('Live · Bot')}`,
+study:()=>`<div class="abs full" style="background:transparent"></div>
+ <div class="abs frame" style="left:32px;top:32px;width:1200px;height:935px;border-color:var(--mint)"></div>
+ <div class="abs" style="left:52px;top:48px"><span class="pill" style="background:var(--ink);color:var(--mint);border-color:var(--mint)">STUDY WITH ME</span></div>
+ <div class="abs panel" style="left:1264px;top:32px;width:624px;height:935px;padding:40px">
+  <div class="k" id="phase"></div>
+  <div class="mono big" id="pomoBig" style="font-size:150px;line-height:1.1;margin:8px 0 18px"></div>
+  <div style="height:8px;background:var(--line);border-radius:4px;overflow:hidden"><div id="prog" style="height:100%;background:var(--mint);width:0"></div></div>
+  <div style="display:flex;justify-content:space-between;margin-top:12px;color:var(--mute);font-size:17px"><span>Focus 50m</span><span>Break 10m</span></div>
+  <div class="k" style="margin-top:56px">Studying now</div><div style="font-size:28px;font-weight:800;margin-top:10px;line-height:1.3">${TOPIC||'Reading docs and notes'}</div>
+  <div class="k" style="margin-top:48px">Study together</div><div style="color:var(--mute);font-size:19px;line-height:1.7;margin-top:10px">Type <b style="color:var(--mint)">!task</b> + what you are working on.<br>Chat on breaks only — focus time stays quiet.</div></div>${bar('Live · Study')}`,
+brb:()=>`<div class="abs full"></div><div class="abs grid"></div><div class="abs" style="left:0;right:0;top:390px;text-align:center">
+ <span class="tag"><i class="dot"></i>Be right back</span><div class="big" style="font-size:120px;margin-top:20px">Back in a moment</div>
+ <div style="font-size:26px;color:var(--mute);margin-top:14px">Grab water, stretch — you too.</div></div>`,
+end:()=>`<div class="abs full"></div><div class="abs grid"></div><div class="abs" style="left:160px;top:220px;right:160px">
+ <span class="tag"><i class="dot"></i>Offline</span><div class="big" style="font-size:96px;line-height:1.05;margin:24px 0 20px">Offline — see you next stream</div>
+ <div style="font-size:28px;color:var(--mute);margin-bottom:40px">Thanks for hanging out. Follow for the next live.</div>
+ <div class="panel" style="display:inline-block;padding:18px 28px;font-size:22px;font-weight:700;color:var(--amber)">Follow · ${NAME}</div></div>`,
+dual:()=>`<div class="abs frame" style="left:32px;top:32px;width:920px;height:935px;border-color:var(--sky)"></div>
+ <div class="abs frame" style="left:968px;top:32px;width:920px;height:935px;border-color:var(--sky)"></div>
+ <div class="abs" style="left:52px;top:48px"><span class="pill" style="background:var(--ink);color:var(--sky);border-color:var(--sky)">DISPLAY 1</span></div>
+ <div class="abs" style="left:988px;top:48px"><span class="pill" style="background:var(--ink);color:var(--sky);border-color:var(--sky)">DISPLAY 2</span></div>
+ <div class="abs frame" style="left:1534px;top:769px;width:340px;height:184px;border-color:var(--sky)"></div>
+ <div class="abs" style="left:1546px;top:740px"><span class="pill" style="background:var(--ink);color:var(--sky);border-color:var(--sky)">CAM</span></div>${bar(q.get('label')||'Live · Dual screen',true)}`};
+document.getElementById('root').innerHTML=V[S]();
+const until=q.get('at'); let end=Date.now()+5*60e3;
+if(until){const[h,m]=until.split(':').map(Number);const t=new Date();t.setHours(h,m,0,0);end=t.getTime()}
+function tick(){const c=document.getElementById('clk');if(c)c.textContent=clock();
+ const p=pomo(),pm=document.getElementById('pomoMini');if(pm)pm.textContent=(p.focus?'FOCUS ':'BREAK ')+p.mm+':'+p.ss;
+ const pb=document.getElementById('pomoBig');if(pb){pb.textContent=p.mm+':'+p.ss;pb.style.color=p.focus?'var(--text)':'var(--mint)';
+  document.getElementById('phase').textContent=p.focus?'● Focus block':'○ Break time';document.getElementById('prog').style.width=(p.pct*100)+'%'}
+ const cd=document.getElementById('cd');if(cd){const l=Math.max(0,Math.round((end-Date.now())/1e3));cd.textContent=l?pad(Math.floor(l/60))+':'+pad(l%60):'LIVE'}}
+tick();setInterval(tick,1000);
+async function nowPlaying(){const el=document.getElementById('np');if(!el)return;
+ try{const r=await fetch('nowplaying.json?t='+Date.now());const{track}=await r.json();
+  el.style.display=track?'inline-block':'none';el.textContent='\u266A '+track}catch(e){el.style.display='none'}}
+nowPlaying();setInterval(nowPlaying,5000);
+</script></body></html>

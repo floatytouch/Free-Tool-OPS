@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --plum:#1A0F1E;--plum-mid:#2D1A32;--plum-line:#4A3050;
+  --tangerine:#FF8F3F;--tangerine-glow:#FFB366;
+  --cream:#FFF3E4;--cream-dim:#C9B5A8;
+  --mint:#7DD9A0;--ink:var(--plum);--panel:var(--plum-mid);--line:var(--plum-line);
+  --text:var(--cream);--mute:var(--cream-dim);--accent:var(--tangerine);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;color:var(--text);font-family:'Be Vietnam Pro',sans-serif}
+body{background:transparent}
+.mono{font-family:'JetBrains Mono',monospace}
+.abs{position:absolute}
+.frame{border:3px solid var(--plum-line);border-radius:4px;box-shadow:inset 0 0 0 1px #0004,0 0 24px #0006}
+.panel{background:linear-gradient(180deg,#35203A 0%,var(--plum-mid) 100%);border:2px solid var(--plum-line);border-radius:6px}
+.tag{display:inline-flex;align-items:center;gap:10px;font:700 14px 'JetBrains Mono';letter-spacing:.14em;text-transform:uppercase;color:var(--tangerine)}
+.dot{width:10px;height:10px;border-radius:2px;background:var(--tangerine);box-shadow:0 0 14px var(--tangerine);animation:pulse 1.5s infinite}
+@keyframes pulse{50%{opacity:.4;transform:scale(.9)}}
+.full{inset:0;background:radial-gradient(ellipse 120% 80% at 50% 20%,#3D2244 0%,var(--plum) 55%,#120A14 100%)}
+.pixel-grid{inset:0;opacity:.12;background-image:
+  linear-gradient(var(--plum-line) 1px,transparent 1px),linear-gradient(90deg,var(--plum-line) 1px,transparent 1px);
+  background-size:32px 32px;image-rendering:pixelated}
+.big{font-weight:800;letter-spacing:-.02em}
+.bar{left:32px;right:32px;top:996px;height:64px;display:flex;align-items:center;gap:24px;padding:0 22px}
+.bar.slim{height:52px;top:1008px;gap:18px;padding:0 18px}
+.bar .sep{width:2px;height:30px;background:var(--plum-line)}
+.side{left:1504px;width:384px}
+.k{font:600 12px 'JetBrains Mono';color:var(--mute);letter-spacing:.16em;text-transform:uppercase}
+.pill{padding:5px 12px;border-radius:4px;border:2px solid var(--plum-line);font:600 13px 'JetBrains Mono';color:var(--mute);background:#120A14}
+.track{display:flex;gap:18px}
+.track div{flex:1;padding:20px 22px;border:2px solid var(--plum-line);border-radius:6px;background:#241428}
+.track b{display:block;font-size:24px;margin:10px 0 6px;color:var(--cream)}
+.track span{color:var(--mute);font-size:16px;line-height:1.45}
+.hero-dog{filter:drop-shadow(0 12px 40px #0009)}
+.bar-mascot{flex-shrink:0;width:72px;height:52px;position:relative;overflow:visible}
+.bar-mascot .dog-wrap{position:absolute;bottom:0;left:0;transform-origin:bottom center}
+.bar-mascot.trot .dog-wrap{animation:trotBar 2.4s steps(8) infinite}
+@keyframes trotBar{0%{left:0}100%{left:calc(100% - 56px)}}
+.bar-mascot.trot .leg-l{animation:legL .3s steps(2) infinite}
+.bar-mascot.trot .leg-r{animation:legR .3s steps(2) infinite alternate}
+@keyframes legL{50%{transform:translateY(-3px)}}
+@keyframes legR{50%{transform:translateY(3px)}}
+.mascot--sleep .eye-open{display:none}
+.mascot--sleep .eye-shut{display:block}
+.mascot--sleep .zzz{display:block}
+.mascot--awake .eye-open{display:block}
+.mascot--awake .eye-shut,.mascot--awake .zzz{display:none}
+.paw-wave,.paw-type{display:none}
+.mascot--wave .paw-wave{display:block!important;animation:wavePaw .8s steps(4) infinite}
+@keyframes wavePaw{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-28deg)}}
+.mascot--type .paw-type{display:block!important;animation:typePaw .25s steps(2) infinite alternate}
+@keyframes typePaw{to{transform:translateY(2px)}}
+.zzz{font:700 18px 'JetBrains Mono';fill:var(--tangerine);opacity:0}
+.mascot--sleep .zzz-a{animation:floatZ 2s ease-in-out infinite}
+.mascot--sleep .zzz-b{animation:floatZ 2s ease-in-out .4s infinite}
+.mascot--sleep .zzz-c{animation:floatZ 2s ease-in-out .8s infinite}
+@keyframes floatZ{0%,100%{opacity:0;transform:translate(0,0)}30%{opacity:1}100%{opacity:0;transform:translate(8px,-18px)}}
+.bubble{position:absolute;left:100%;top:-8px;margin-left:12px;min-width:280px;max-width:360px;padding:12px 16px;background:var(--cream);color:var(--plum);border:3px solid var(--plum-line);border-radius:8px;font:600 13px 'JetBrains Mono';line-height:1.35;box-shadow:4px 4px 0 #0005}
+.bubble::before{content:'';position:absolute;left:-14px;bottom:14px;width:0;height:0;border:10px solid transparent;border-right-color:var(--cream)}
+.bot-desk{left:1264px;top:32px;width:624px;height:935px;padding:28px;display:flex;flex-direction:column;gap:16px}
+.bot-stage{flex:1;position:relative;background:#120A14;border:2px dashed var(--plum-line);border-radius:6px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:24px}
+.study-mascot{position:absolute;right:48px;bottom:120px}
+.pomo-hero{color:var(--tangerine);text-shadow:0 0 40px #FF8F3F44}
+.offline-hero{font-size:88px;line-height:1.05}
+.sparkle{position:absolute;width:6px;height:6px;background:var(--tangerine);opacity:.7;animation:spark 3s infinite}
+@keyframes spark{0%,100%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1)}}
+</style></head><body>
+<div id="root"></div>
+<script>
+const q=new URLSearchParams(location.search);
+const S=q.get('s')||'start', NAME=q.get('name')||'THINH · BUILD & STUDY', TOPIC=q.get('topic')||'';
+const accent={start:'var(--tangerine)',coding:'var(--tangerine)',bot:'var(--tangerine)',study:'var(--mint)',brb:'var(--tangerine)',end:'var(--tangerine)',dual:'var(--tangerine)'}[S];
+document.documentElement.style.setProperty('--accent',accent);
+const pad=n=>String(n).padStart(2,'0');
+const clock=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+function pomo(){const d=new Date(),m=d.getMinutes(),s=d.getSeconds(),focus=m<50;
+ const left=(focus?50*60:60*60)-(m*60+s);return{focus,mm:pad(Math.floor(left/60)),ss:pad(left%60),pct:focus?(m*60+s)/3000:(m*60+s-3000)/600}}
+
+function dogSvg(unit,stateClass){
+  const u=unit||5;
+  return `<svg class="mascot ${stateClass||'mascot--awake'}" width="${14*u}" height="${12*u}" viewBox="0 0 14 12" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <rect x="4" y="9" width="2" height="2" fill="#C9A882" class="leg-l"/><rect x="8" y="9" width="2" height="2" fill="#C9A882" class="leg-r"/>
+    <rect x="3" y="6" width="8" height="4" fill="#F5E6D3"/><rect x="2" y="7" width="1" height="2" fill="#E8D4BC"/>
+    <rect x="11" y="7" width="1" height="2" fill="#E8D4BC"/>
+    <rect x="2" y="2" width="3" height="3" fill="#E8B88A"/><rect x="9" y="2" width="3" height="3" fill="#E8B88A"/>
+    <rect x="3" y="1" width="2" height="2" fill="#FF8F3F"/><rect x="9" y="1" width="2" height="2" fill="#FF8F3F"/>
+    <rect x="4" y="4" width="6" height="3" fill="#FFF3E4"/>
+    <rect x="5" y="5" width="1" height="1" fill="#1A0F1E" class="eye-open"/><rect x="8" y="5" width="1" height="1" fill="#1A0F1E" class="eye-open"/>
+    <rect x="5" y="6" width="2" height="1" fill="#1A0F1E" class="eye-shut"/><rect x="7" y="6" width="2" height="1" fill="#1A0F1E" class="eye-shut"/>
+    <rect x="6" y="7" width="2" height="1" fill="#3D2440"/>
+    <rect x="10" y="5" width="2" height="1" fill="#F5E6D3" class="paw-wave" style="transform-origin:10px 6px"/>
+    <rect x="1" y="8" width="2" height="1" fill="#F5E6D3" class="paw-type"/>
+    <text x="11" y="2" class="zzz zzz-a">z</text><text x="12" y="0" class="zzz zzz-b">Z</text><text x="13" y="-1" class="zzz zzz-c">Z</text>
+  </g></svg>`;
+}
+
+function heroDog(wave){
+  return `<div class="hero-dog" style="position:relative;width:490px;height:420px">${dogSvg(32,wave?'mascot--wave mascot--awake':'mascot--wave mascot--awake')}
+  <i class="sparkle" style="left:20%;top:10%;animation-delay:0s"></i>
+  <i class="sparkle" style="right:25%;top:18%;animation-delay:1.2s"></i>
+  <i class="sparkle" style="left:40%;bottom:5%;animation-delay:2s"></i></div>`;
+}
+
+const bar=(label,slim,withMascot)=>`<div class="abs panel bar${slim?' slim':''}" id="liveBar">
+ <span class="tag"><i class="dot"></i>${label}</span><span class="sep"></span>
+ <span style="font-weight:800;font-size:19px">${NAME}</span><span class="sep"></span>
+ <span id="topic" style="font-size:18px;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${TOPIC}</span>
+ ${withMascot?'<div class="bar-mascot" id="barMascot"><div class="dog-wrap">'+dogSvg(4,'mascot--sleep')+'</div></div>':''}
+ <span class="pill" id="np" style="display:none;max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--cream);border-color:var(--tangerine)"></span>
+ <span class="pill" id="pomoMini" style="color:var(--tangerine);border-color:var(--tangerine)"></span>
+ <span class="mono" id="clk" style="font-size:19px;color:var(--mute)"></span></div>`;
+
+const camFrame=`<div class="abs frame" style="left:1504px;top:32px;width:384px;height:288px;border-color:var(--tangerine)"></div>
+ <div class="abs" style="left:1520px;top:296px"><span class="pill" style="color:var(--tangerine);border-color:var(--tangerine)">CAM</span></div>`;
+
+const tracks=`<div class="track">
+ <div><span class="tag">01 · Code</span><b>Real builds</b><span>Ship features with Not napping through the hard parts.</span></div>
+ <div><span class="tag">02 · Bot</span><b>AI on the job</b><span>Watch Not type job logs while agents earn in the wild.</span></div>
+ <div><span class="tag" style="color:var(--mint)">03 · Study</span><b>Study With Me</b><span>Pomodoro 50/10 — focus together, break together.</span></div></div>`;
+
+const kbSvg=`<svg width="220" height="36" viewBox="0 0 22 4" shape-rendering="crispEdges" style="margin-top:8px"><rect width="22" height="4" fill="#241428" stroke="#4A3050"/><rect x="1" y="1" width="2" height="2" fill="#4A3050"/><rect x="4" y="1" width="2" height="2" fill="#4A3050"/><rect x="7" y="1" width="2" height="2" fill="#FF8F3F"/><rect x="10" y="1" width="2" height="2" fill="#4A3050"/><rect x="13" y="1" width="2" height="2" fill="#4A3050"/><rect x="16" y="1" width="2" height="2" fill="#4A3050"/><rect x="19" y="1" width="2" height="2" fill="#4A3050"/></svg>`;
+const botBubble=`<div class="bot-stage"><div style="position:relative;display:flex;flex-direction:column;align-items:center">
+ ${dogSvg(11,'mascot--type mascot--awake')}
+ <div style="position:relative;margin-top:4px">${kbSvg}</div>
+ <div class="bubble" id="botLog" style="position:absolute;left:50%;top:-72px;margin-left:100px">[dispatch] loading agent roster...</div></div></div>`;
+
+const V={
+start:()=>`<div class="abs full"></div><div class="abs pixel-grid"></div>
+ <div class="abs" style="left:80px;top:120px;width:520px">${heroDog(true)}</div>
+ <div class="abs" style="left:640px;top:140px;right:120px">
+  <span class="tag"><i class="dot"></i>Not says hi</span>
+  <div class="big" style="font-size:96px;line-height:1.02;margin:24px 0 16px;color:var(--cream)">Real code.<br>Real bots.<br><span class="pomo-hero">Study together.</span></div>
+  <div style="font-size:24px;color:var(--mute);margin-bottom:48px">${NAME}${TOPIC?' — today: '+TOPIC:''}</div>${tracks}</div>
+ <div class="abs panel" style="right:120px;top:160px;padding:28px 36px;text-align:center;border-color:var(--tangerine)">
+  <div class="k">Starting in</div><div class="mono big" id="cd" style="font-size:88px;color:var(--tangerine);margin-top:8px">05:00</div>
+  <div style="margin-top:16px;font-size:15px;color:var(--mute)">Not is warming up paws</div></div>`,
+
+coding:()=>`<div class="abs frame" style="left:32px;top:32px;width:1440px;height:935px;border-color:var(--tangerine)"></div>
+ <div class="abs" style="left:52px;top:48px"><span class="pill" style="color:var(--tangerine);border-color:var(--tangerine)">~/live $ code</span></div>${camFrame}
+ <div class="abs panel side" style="top:340px;height:627px;padding:24px">
+  <div class="k">Now</div><div style="font-size:24px;font-weight:800;margin:10px 0 24px;line-height:1.25">${TOPIC||'Live coding'}</div>
+  <div class="k">Room rules</div><ul style="margin:12px 0 0 18px;color:var(--mute);font-size:17px;line-height:1.75"><li>Ask anything in chat</li><li>Code feedback welcome</li><li>No link spam</li></ul>
+  <div id="sideSleep" style="margin-top:32px;text-align:center">${dogSvg(9,'mascot--sleep')}</div></div>${bar('Live · Code',false,true)}`,
+
+bot:()=>`<div class="abs frame" style="left:32px;top:32px;width:1440px;height:935px;border-color:var(--tangerine)"></div>
+ <div class="abs" style="left:52px;top:48px"><span class="pill" style="color:var(--tangerine);border-color:var(--tangerine)">BOT RUNNING</span></div>${camFrame}
+ <div class="abs panel bot-desk">
+  <div class="k">What the bot does</div><div style="font-size:22px;font-weight:800;line-height:1.25">${TOPIC||'Agents pick up work, code, and report back'}</div>
+  <div class="k" style="margin-top:8px">Live job log</div>${botBubble}</div>${bar('Live · Bot',false,false)}`,
+
+study:()=>`<div class="abs frame" style="left:32px;top:32px;width:1200px;height:935px;border-color:var(--mint)"></div>
+ <div class="abs" style="left:52px;top:48px"><span class="pill" style="color:var(--mint);border-color:var(--mint)">STUDY WITH ME</span></div>
+ <div class="abs panel" style="left:1264px;top:32px;width:624px;height:935px;padding:36px;position:relative">
+  <div class="study-mascot" id="studyMascot">${dogSvg(10,'mascot--sleep')}</div>
+  <div class="k" id="phase"></div>
+  <div class="mono big pomo-hero" id="pomoBig" style="font-size:140px;line-height:1.05;margin:6px 0 16px"></div>
+  <div style="height:10px;background:var(--plum-line);border-radius:3px;overflow:hidden"><div id="prog" style="height:100%;background:var(--mint);width:0;box-shadow:0 0 12px #7DD9A066"></div></div>
+  <div style="display:flex;justify-content:space-between;margin-top:12px;color:var(--mute);font-size:16px"><span>Focus 50m</span><span>Break 10m</span></div>
+  <div class="k" style="margin-top:48px">Studying now</div><div style="font-size:26px;font-weight:800;margin-top:10px;line-height:1.3">${TOPIC||'Reading docs and notes'}</div>
+  <div class="k" style="margin-top:40px">Study together</div><div style="color:var(--mute);font-size:18px;line-height:1.65;margin-top:10px">Type <b style="color:var(--mint)">!task</b> + what you are working on.<br>Chat on breaks only.</div></div>${bar('Live · Study',false,true)}`,
+
+brb:()=>`<div class="abs full"></div><div class="abs pixel-grid"></div>
+ <div class="abs" style="left:0;right:0;top:200px;text-align:center">${heroDog(true)}
+ <span class="tag" style="margin-top:24px"><i class="dot"></i>Be right back</span>
+ <div class="big" style="font-size:108px;margin-top:16px">Stretch break</div>
+ <div style="font-size:24px;color:var(--mute);margin-top:12px">Not will guard the repo. Grab water.</div></div>`,
+
+end:()=>`<div class="abs full"></div><div class="abs pixel-grid"></div>
+ <div class="abs" style="left:100px;top:160px;width:560px">${heroDog(true)}</div>
+ <div class="abs" style="left:700px;top:220px;right:100px">
+ <span class="tag"><i class="dot"></i>Offline</span>
+ <div class="big offline-hero" style="margin:20px 0 18px">Offline —<br>see you next stream</div>
+ <div style="font-size:26px;color:var(--mute);margin-bottom:36px">Thanks for hanging out. Not is sleeping until the next live.</div>
+ <div class="panel" style="display:inline-block;padding:16px 32px;font-size:22px;font-weight:700;color:var(--tangerine);border-color:var(--tangerine)">Follow · ${NAME}</div></div>`,
+
+dual:()=>`<div class="abs frame" style="left:32px;top:32px;width:920px;height:935px;border-color:var(--tangerine)"></div>
+ <div class="abs frame" style="left:968px;top:32px;width:920px;height:935px;border-color:var(--tangerine)"></div>
+ <div class="abs" style="left:52px;top:48px"><span class="pill" style="color:var(--tangerine);border-color:var(--tangerine)">DISPLAY 1</span></div>
+ <div class="abs" style="left:988px;top:48px"><span class="pill" style="color:var(--tangerine);border-color:var(--tangerine)">DISPLAY 2</span></div>
+ <div class="abs frame" style="left:1536px;top:771px;width:336px;height:180px;border-color:var(--tangerine)"></div>
+ <div class="abs" style="left:1548px;top:748px"><span class="pill" style="color:var(--tangerine);border-color:var(--tangerine)">CAM</span></div>${bar(q.get('label')||'Live · Dual screen',true,true)}`};
+
+document.getElementById('root').innerHTML=V[S]();
+const until=q.get('at'); let end=Date.now()+5*60e3;
+if(until){const[h,m]=until.split(':').map(Number);const t=new Date();t.setHours(h,m,0,0);end=t.getTime()}
+
+const LOGS=['[dispatch] grep auth middleware...','[async] pytest -q services/api','[agent] ByteCrew #222 review gate','[done] push origin feat/stream-theme','[memory] embed refresh OK','[job] chrome headless screenshot pass','[lint] eslint --max-warnings 0','[deploy] purge cloudflare cache'];
+let logI=0;
+function cycleLog(){const el=document.getElementById('botLog');if(!el)return;el.textContent=LOGS[logI++%LOGS.length]}
+cycleLog();setInterval(cycleLog,3200);
+
+function syncMascot(p){
+  const barM=document.getElementById('barMascot');
+  if(barM){
+    const wrap=barM.querySelector('.dog-wrap');
+    barM.classList.toggle('trot',!p.focus);
+    if(wrap)wrap.innerHTML=p.focus?dogSvg(4,'mascot--sleep'):dogSvg(4,'mascot--awake');
+  }
+  const side=document.getElementById('sideSleep');
+  if(side)side.innerHTML=p.focus?dogSvg(9,'mascot--sleep'):dogSvg(9,'mascot--awake mascot--wave');
+  const study=document.getElementById('studyMascot');
+  if(study)study.innerHTML=p.focus?dogSvg(10,'mascot--sleep'):dogSvg(10,'mascot--awake');
+}
+
+function tick(){const c=document.getElementById('clk');if(c)c.textContent=clock();
+ const p=pomo(),pm=document.getElementById('pomoMini');if(pm)pm.textContent=(p.focus?'FOCUS ':'BREAK ')+p.mm+':'+p.ss;
+ syncMascot(p);
+ const pb=document.getElementById('pomoBig');if(pb){pb.textContent=p.mm+':'+p.ss;pb.style.color=p.focus?'var(--cream)':'var(--mint)';
+  document.getElementById('phase').textContent=p.focus?'● Focus — Not is napping':'○ Break — Not is awake';
+  document.getElementById('prog').style.width=(p.pct*100)+'%'}
+ const cd=document.getElementById('cd');if(cd){const l=Math.max(0,Math.round((end-Date.now())/1e3));cd.textContent=l?pad(Math.floor(l/60))+':'+pad(l%60):'LIVE'}}
+tick();setInterval(tick,1000);
+
+async function nowPlaying(){const el=document.getElementById('np');if(!el)return;
+ try{const r=await fetch('../nowplaying.json?t='+Date.now());const j=await r.json();const track=j.track;
+  el.style.display=track?'inline-block':'none';el.textContent='\u266A '+track}catch(e){el.style.display='none'}}
+nowPlaying();setInterval(nowPlaying,5000);
+</script></body></html>

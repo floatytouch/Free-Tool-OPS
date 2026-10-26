@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050504;--crt:#0c0b08;--glass:#12100c;
+  --amber:#e8a020;--amber-hi:#ffc85a;--amber-lo:#8a6428;
+  --green:#6ec96e;--green-lo:#3d6b3d;--red:#c45c4a;
+  --text:#dcc07a;--mute:#6e5c40;--line:#2a2418;--glow:rgba(232,160,32,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;color:var(--text);
+  font-family:'JetBrains Mono',monospace;font-size:16px}
+.mono{font-family:'JetBrains Mono',monospace}
+.vn{font-family:'Be Vietnam Pro',sans-serif}
+.abs{position:absolute}
+.crt-glow{text-shadow:0 0 8px var(--glow),0 0 18px rgba(232,160,32,.12)}
+.scanlines{pointer-events:none;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.14) 2px,rgba(0,0,0,.14) 4px);mix-blend-mode:multiply;z-index:9000}
+.vignette{pointer-events:none;inset:0;box-shadow:inset 0 0 120px rgba(0,0,0,.55);z-index:8999}
+.fullscreen{inset:0;background:var(--void)}
+.opaque .fullscreen{background:var(--crt)}
+
+/* tmux pane */
+.pane{border:1px solid var(--amber-lo);background:transparent;box-shadow:inset 0 0 0 1px rgba(232,160,32,.08),0 0 24px rgba(0,0,0,.4)}
+.pane-title{left:0;right:0;top:-1px;height:28px;padding:0 10px;display:flex;align-items:center;gap:8px;
+  background:linear-gradient(180deg,#1a1610,#100e0a);border:1px solid var(--amber-lo);border-bottom:1px solid var(--line);
+  font-size:13px;font-weight:600;color:var(--amber-hi);letter-spacing:.02em}
+.pane-title .idx{color:var(--amber);opacity:.9}
+.pane-inner{position:absolute;inset:28px 0 0 0;pointer-events:none}
+
+/* statusline */
+.status{left:32px;width:1856px;top:996px;height:64px;display:flex;align-items:stretch;
+  background:linear-gradient(180deg,#14110c,#0a0907);border:1px solid var(--amber-lo);
+  font-size:15px;line-height:1}
+.status-seg{display:flex;align-items:center;padding:0 14px;border-right:1px solid var(--line);white-space:nowrap}
+.status-seg.mode{background:#1c1810;color:var(--amber-hi);font-weight:700;min-width:88px;justify-content:center}
+.status-seg.mode.insert::after{content:'';width:10px;height:18px;background:var(--amber-hi);margin-left:8px;animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.status-seg.session{color:var(--amber);font-weight:600}
+.status-seg.grow{flex:1;min-width:0;overflow:hidden}
+.status-seg.np{color:var(--text);display:none}
+.status-seg.np.show{display:flex}
+.status-seg.pomo{color:var(--green);font-weight:600}
+.status-seg.clock{color:var(--mute);margin-left:auto;border-right:none;border-left:1px solid var(--line)}
+
+.side-panel{left:1504px;width:384px;top:340px;height:627px;padding:16px 14px;
+  border:1px solid var(--amber-lo);background:rgba(8,7,5,.72);font-size:14px;line-height:1.55}
+.side-panel .h{color:var(--amber-lo);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.side-panel .big{font-size:22px;color:var(--amber-hi);font-weight:700;margin:8px 0 20px;line-height:1.25}
+.side-panel ul{margin:8px 0 0 18px;color:var(--mute)}
+.side-panel li{margin:4px 0}
+
+.study-panel{left:1264px;top:32px;width:624px;height:935px;padding:28px 24px;
+  border:1px solid var(--green-lo);background:rgba(8,7,5,.78)}
+.study-panel .phase{color:var(--green);font-size:13px;letter-spacing:.1em}
+.study-panel .pomo-big{font-size:128px;line-height:1;color:var(--amber-hi);margin:12px 0;font-weight:700}
+.study-panel .bar-track{height:6px;background:var(--line);margin:12px 0}
+.study-panel .bar-fill{height:100%;background:var(--green);width:0;box-shadow:0 0 10px rgba(110,201,110,.4)}
+.study-panel .meta{display:flex;justify-content:space-between;color:var(--mute);font-size:14px}
+
+.boot-log{color:var(--mute);font-size:15px;line-height:1.7;max-height:420px;overflow:hidden}
+.boot-log .ok{color:var(--green)}
+.boot-log .warn{color:var(--amber)}
+.pre{white-space:pre;font-size:14px;line-height:1.15;color:var(--amber);margin:20px 0}
+.cursor-block{display:inline-block;width:12px;height:20px;background:var(--amber-hi);vertical-align:text-bottom;animation:blink 1s step-end infinite}
+
+.offline-term{padding:48px 64px;font-size:15px;line-height:1.65;color:var(--mute)}
+.offline-term .line{color:var(--red)}
+.offline-term .prompt{color:var(--amber-lo)}
+.offline-term h1{font-size:42px;color:var(--amber-hi);margin:24px 0 12px;font-weight:700}
+
+.brb-center{left:0;right:0;top:340px;text-align:center}
+.brb-center h1{font-size:88px;color:var(--amber-hi);margin:16px 0}
+.brb-center p{font-size:22px;color:var(--mute)}
+
+.track-row{display:flex;gap:16px;margin-top:32px}
+.track-card{flex:1;padding:18px;border:1px solid var(--line);background:rgba(12,10,8,.85)}
+.track-card b{display:block;color:var(--amber-hi);font-size:18px;margin:8px 0 4px}
+.track-card span{color:var(--mute);font-size:14px;line-height:1.5}
+
+.cd-box{right:120px;top:200px;text-align:right}
+.cd-box .lbl{font-size:12px;color:var(--mute);letter-spacing:.12em}
+.cd-box .cd{font-size:88px;color:var(--amber-hi);font-weight:700;margin-top:8px}
+
+.badge{display:inline-block;padding:3px 10px;border:1px solid var(--amber-lo);background:var(--void);font-size:12px;color:var(--amber)}
+</style></head><body id="body">
+<div id="root"></div>
+<div class="abs scanlines"></div>
+<div class="abs vignette"></div>
+<script>
+const q=new URLSearchParams(location.search);
+const S=q.get('s')||'start';
+const NAME=q.get('name')||'THINH · BUILD & STUDY';
+const TOPIC=q.get('topic')||'';
+const LABEL=q.get('label')||'Live · Dual screen';
+const pad=n=>String(n).padStart(2,'0');
+const clock=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+function pomo(){
+  const d=new Date(),m=d.getMinutes(),s=d.getSeconds(),focus=m<50;
+  const left=(focus?50*60:60*60)-(m*60+s);
+  return{focus,mm:pad(Math.floor(left/60)),ss:pad(left%60),pct:focus?(m*60+s)/3000:(m*60+s-3000)/600};
+}
+const modeLabel={start:'--',coding:'NORMAL',bot:'NORMAL',study:'NORMAL',brb:'--',end:'--',dual:'NORMAL'}[S];
+const sessionName={start:'boot',coding:'stream:code',bot:'stream:bot',study:'stream:study',brb:'away',end:'offline',dual:'stream:dual'}[S];
+
+function pane(x,y,w,h,title,inner=''){
+  return `<div class="abs pane" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">
+    <div class="abs pane-title"><span class="idx">${title}</span></div>${inner}</div>`;
+}
+function statusBar(barLabel){
+  const showPomo=S!=='brb'&&S!=='end'&&S!=='start';
+  return `<div class="abs status">
+    <div class="status-seg mode insert">${modeLabel}</div>
+    <div class="status-seg session">${sessionName}</div>
+    <div class="status-seg grow vn" id="topic" title="${TOPIC}">${barLabel} · ${NAME}${TOPIC?' · '+TOPIC:''}</div>
+    <div class="status-seg np" id="np"></div>
+    ${showPomo?'<div class="status-seg pomo" id="pomoMini"></div>':''}
+    <div class="status-seg clock mono" id="clk"></div></div>`;
+}
+const camPane=pane(1504,32,384,288,'[1] cam');
+const sideBlock=(title,body,list)=>`<div class="abs side-panel">
+  <div class="h">${title}</div><div class="big vn">${body}</div>
+  ${list?`<div class="h">Notes</div><ul class="vn">${list}</ul>`:''}</div>`;
+
+const ASCII=`  ████████╗██╗  ██╗██╗███╗   ██╗██╗  ██╗
+  ╚══██╔══╝██║  ██║██║████╗  ██║██║  ██║
+     ██║   ███████║██║██╔██╗ ██║███████║
+     ██║   ██╔══██║██║██║╚██╗██║██╔══██║
+     ██║   ██║  ██║██║██║ ╚████║██║  ██║
+     ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝
+        B U I L D  ·  S T U D Y  ·  L I V E`;
+
+const tracks=`<div class="track-row vn">
+  <div class="track-card"><span class="badge">pane 0</span><b>Real builds</b><span>Ship features, fix bugs, no fake demos.</span></div>
+  <div class="track-card"><span class="badge">pane 1</span><b>AI on the job</b><span>Agents run tasks and report back.</span></div>
+  <div class="track-card"><span class="badge">pane 2</span><b>Study With Me</b><span>Pomodoro 50/10 — focus together.</span></div></div>`;
+
+const V={
+start:()=>`<div class="abs fullscreen"></div>
+  <div class="abs" style="left:80px;top:72px;right:80px">
+    <div class="boot-log mono" id="bootLog"></div>
+    <pre class="pre crt-glow" id="asciiArt" style="opacity:0">${ASCII}</pre>
+    <div class="vn crt-glow" id="bootTitle" style="opacity:0;font-size:20px;color:var(--text);margin-top:12px">${NAME}</div>
+    ${tracks}
+  </div>
+  <div class="abs cd-box"><div class="lbl">TMUX ATTACH IN</div><div class="cd mono crt-glow" id="cd">05:00</div></div>`,
+
+coding:()=>`${pane(32,32,1440,935,'[0] code ~/live','<div class="pane-inner"></div>')}
+  ${camPane}
+  ${sideBlock('buffer',TOPIC||'Live coding','<li>Ask in chat</li><li>Code feedback welcome</li><li>No link spam</li>')}
+  ${statusBar('code')}`,
+
+bot:()=>`${pane(32,32,1440,935,'[2] bot /agents','<div class="pane-inner"></div>')}
+  ${camPane}
+  ${sideBlock('job',TOPIC||'Agents pick up work, code, report back','<li>Job dispatch lines</li><li>Background runs</li><li>Real output</li>')}
+  ${statusBar('bot')}`,
+
+study:()=>`${pane(32,32,1200,935,'[0] study ~/focus','<div class="pane-inner"></div>')}
+  <div class="abs study-panel">
+    <div class="phase mono" id="phase">-- focus block</div>
+    <div class="pomo-big mono crt-glow" id="pomoBig">50:00</div>
+    <div class="bar-track"><div class="bar-fill" id="prog"></div></div>
+    <div class="meta mono"><span>focus 50m</span><span>break 10m</span></div>
+    <div class="h" style="margin-top:40px;color:var(--amber-lo)">studying</div>
+    <div class="big vn" style="font-size:26px">${TOPIC||'Reading docs and notes'}</div>
+    <div class="h" style="margin-top:32px">chat</div>
+    <div class="vn" style="color:var(--mute);font-size:16px;line-height:1.6">Type <b style="color:var(--green)">!task</b> + your focus.<br>Quiet during focus blocks.</div>
+  </div>
+  ${statusBar('study')}`,
+
+brb:()=>`<div class="abs fullscreen"></div>
+  <div class="abs brb-center">
+    <div class="badge mono">STATUS: AWAY</div>
+    <h1 class="crt-glow mono">BRB</h1>
+    <p class="vn">connection idle — back shortly</p>
+    <p class="mono" style="margin-top:24px;color:var(--amber-lo)">[detached] session preserved · attach when ready</p>
+  </div>`,
+
+end:()=>`<div class="abs fullscreen"></div>
+  <div class="abs offline-term mono" style="left:120px;top:160px;right:120px">
+    <div class="line">[remote disconnected]: Connection closed by remote host.</div>
+    <div class="prompt" style="margin-top:20px">$ stream-kit session --end</div>
+    <h1 class="crt-glow vn">Offline — see you next stream</h1>
+    <p class="vn" style="font-size:22px;color:var(--text);max-width:900px">Thanks for hanging out. Follow for the next live.</p>
+    <p style="margin-top:28px"><span class="badge">follow</span> <span class="crt-glow">${NAME}</span></p>
+    <p style="margin-top:40px;color:var(--amber-lo)">Process finished with exit code 0.<span class="cursor-block"></span></p>
+  </div>`,
+
+dual:()=>`${pane(32,32,920,935,'[0] display-1','<div class="pane-inner"></div>')}
+  ${pane(968,32,920,935,'[1] display-2','<div class="pane-inner"></div>')}
+  ${pane(1536,771,336,180,'[2] cam','<div class="pane-inner"></div>')}
+  ${statusBar(LABEL)}`
+};
+
+document.getElementById('body').classList.toggle('opaque',S==='start'||S==='brb'||S==='end');
+document.getElementById('root').innerHTML=V[S]();
+
+const until=q.get('at');
+let endAt=Date.now()+5*60e3;
+if(until){const[h,m]=until.split(':').map(Number);const t=new Date();t.setHours(h,m,0,0);endAt=t.getTime();}
+
+const bootLines=[
+  {t:0,s:'[    0.000] stream-kit: mounting overlay frame...',c:'ok'},
+  {t:400,s:'[    0.042] tmux: server started (/tmp/stream)',c:''},
+  {t:800,s:'[    0.088] audio: pulse OK · nowplaying bridge ready',c:'ok'},
+  {t:1200,s:'[    0.120] WARN: chat rate limit relaxed for friends',c:'warn'},
+  {t:1600,s:'[    0.156] loading theme: terminal_noir v1.0',c:'ok'},
+  {t:2000,s:'[    0.201] attaching session "stream:live"...',c:''},
+  {t:2600,s:'[    0.248] OK — all panes ready',c:'ok'}
+];
+function runBoot(){
+  if(S!=='start')return;
+  const log=document.getElementById('bootLog');
+  const art=document.getElementById('asciiArt');
+  const title=document.getElementById('bootTitle');
+  bootLines.forEach(({t,s,c})=>setTimeout(()=>{
+    const d=document.createElement('div');
+    d.textContent=s;
+    if(c)d.className=c;
+    log.appendChild(d);
+  },t));
+  setTimeout(()=>{art.style.opacity=1;art.style.transition='opacity .6s'},3000);
+  setTimeout(()=>{title.style.opacity=1;title.style.transition='opacity .5s'},3400);
+}
+
+function tick(){
+  const c=document.getElementById('clk');
+  if(c)c.textContent=clock();
+  const p=pomo(),pm=document.getElementById('pomoMini');
+  if(pm)pm.textContent=(p.focus?'FOCUS ':'BREAK ')+p.mm+':'+p.ss;
+  const pb=document.getElementById('pomoBig');
+  if(pb){
+    pb.textContent=p.mm+':'+p.ss;
+    pb.style.color=p.focus?'var(--amber-hi)':'var(--green)';
+    const ph=document.getElementById('phase');
+    if(ph)ph.textContent=p.focus?'● focus block':'○ break time';
+    const pr=document.getElementById('prog');
+    if(pr)pr.style.width=(p.pct*100)+'%';
+  }
+  const cd=document.getElementById('cd');
+  if(cd){
+    const l=Math.max(0,Math.round((endAt-Date.now())/1e3));
+    cd.textContent=l?pad(Math.floor(l/60))+':'+pad(l%60):'LIVE';
+  }
+}
+tick();setInterval(tick,1000);
+runBoot();
+
+async function nowPlaying(){
+  const el=document.getElementById('np');
+  if(!el)return;
+  try{
+    const r=await fetch('../nowplaying.json?t='+Date.now());
+    const{track}=await r.json();
+    if(track){el.classList.add('show');el.textContent='$ now-playing: '+track;}
+    else{el.classList.remove('show');el.textContent='';}
+  }catch(e){el.classList.remove('show');}
+}
+nowPlaying();setInterval(nowPlaying,5000);
+</script></body></html>
