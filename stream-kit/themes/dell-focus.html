@@ -389,7 +389,8 @@ function bellStrike(ctx,t0,freqs,gainPeak,dur){
 function ringBell(ctx,t0,count,gap,f,peak){
   for(let i=0;i<count;i++)bellStrike(ctx,t0+i*gap,[f,f*2.76,f*5.4],peak,0.55);
 }
-function playBreakChime(){
+function playBreakChime(){return; // chimes disabled permanently (Thinh 2026-10-27)
+
   const ctx=ensureAudio();
   const t0=ctx.currentTime;
   ringBell(ctx,t0,10,0.09,1318.5,0.32);
@@ -401,14 +402,16 @@ function playBreakChime(){
   bellStrike(ctx,t+2.2,[659.25,1318.5],peak*0.7,1.1);
 }
 
-function playFocusChime(){
+function playFocusChime(){return; // chimes disabled permanently (Thinh 2026-10-27)
+
   const ctx=ensureAudio();
   const t=ctx.currentTime;
   bellStrike(ctx,t,[440,880],0.28,0.9);
   bellStrike(ctx,t+0.35,[554.37,1108.74],0.32,1.0);
 }
 
-function playSoftTick(){
+function playSoftTick(){return; // chimes disabled permanently (Thinh 2026-10-27)
+
   const ctx=ensureAudio();
   const t=ctx.currentTime;
   const o=ctx.createOscillator();
