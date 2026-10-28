@@ -215,6 +215,10 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;font
 .on-air{padding:22px 32px}
 .oa-name{margin-top:10px}
 #npCard{display:none}
+.face-card .eyebrow{position:absolute;top:18px;left:20px;z-index:1}
+.face-card .np-stage{padding:0 12px 10px}
+.face-card .np-dancer{transform:scale(.96)}
+.np-mascot .face-head{filter:drop-shadow(0 6px 10px rgba(0,0,0,.5))}
 </style></head><body>
 <div class="stage" id="stage">
 <svg width="0" height="0" aria-hidden="true"><defs>
@@ -299,6 +303,31 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;font
             <path d="M54 138 Q46 148 50 158" fill="none" stroke="url(#notGold)" stroke-width="1.8" stroke-linecap="round"/>
             <path d="M146 138 Q154 148 150 158" fill="none" stroke="url(#notGold)" stroke-width="1.8" stroke-linecap="round"/>
           </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card np-body is-playing face-card" style="left:1536px;top:271px;width:368px;height:286px">
+  <div class="eyebrow">Dance floor</div>
+  <div class="np-stage" aria-hidden="true">
+    <div class="np-spotlight"></div>
+    <div class="np-notes"><span class="n1">♪</span><span class="n2">♫</span><span class="n3">♪</span></div>
+    <div class="np-dancer">
+      <div class="np-shadow"></div>
+      <div class="np-mascot-wrap">
+        <svg class="np-mascot" viewBox="0 0 200 260" aria-hidden="true">
+          <defs>
+            <linearGradient id="faceGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f0c878"/><stop offset="100%" stop-color="#b87a38"/></linearGradient>
+          </defs>
+          <g class="mascot-tail"><path d="M118 198 Q148 188 158 210 Q150 228 124 218 Z" fill="#0a0a0c"/><ellipse cx="156" cy="212" rx="7" ry="5" fill="url(#faceGold)"/></g>
+          <ellipse cx="100" cy="210" rx="38" ry="34" fill="#0a0a0c"/>
+          <g class="mascot-leg-l"><ellipse cx="78" cy="238" rx="14" ry="10" fill="#08080a"/><ellipse cx="78" cy="242" rx="10" ry="5" fill="url(#faceGold)" opacity=".85"/></g>
+          <g class="mascot-leg-r"><ellipse cx="122" cy="238" rx="14" ry="10" fill="#08080a"/><ellipse cx="122" cy="242" rx="10" ry="5" fill="url(#faceGold)" opacity=".85"/></g>
+          <g class="mascot-arm-l"><ellipse cx="62" cy="205" rx="11" ry="16" fill="#0a0a0c" transform="rotate(-18 62 205)"/></g>
+          <g class="mascot-arm-r"><ellipse cx="138" cy="205" rx="11" ry="16" fill="#0a0a0c" transform="rotate(18 138 205)"/></g>
+          <g class="mascot-head"><image class="face-head" href="assets/thinh-face.png" x="35" y="30" width="130" height="151"/></g>
         </svg>
       </div>
     </div>
