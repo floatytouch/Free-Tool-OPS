@@ -196,9 +196,6 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;font
 .oa-topic{font-size:16px;color:var(--text-muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .oa-stats{margin-top:auto;display:flex;gap:36px;font-size:14px;color:var(--text-muted)}
 .oa-stats{align-items:center}
-.oa-kofi{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:rgba(255,94,91,.14);border:1px solid rgba(255,94,91,.35);color:var(--text,#fff)!important}
-.oa-kofi b{font-weight:400}
-.oa-kofi em{color:#ff8a87!important;margin-left:2px!important}
 .oa-stats em{font-style:normal;color:var(--accent);font-weight:600;margin-left:8px}
 /* dell-focus compact overrides */
 #veil1 h2{font-size:11px}#veil1 .veil-time{font-size:26px;margin-top:8px}#veil1 .break-veil-inner{padding:8px}
@@ -217,6 +214,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;font
 .dots{margin-top:8px}
 .on-air{padding:22px 32px}
 .oa-name{margin-top:10px}
+#npCard{display:none}
 </style></head><body>
 <div class="stage" id="stage">
 <svg width="0" height="0" aria-hidden="true"><defs>
@@ -224,15 +222,11 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;font
 <rect width="1920" height="1080" fill="white"/>
 <rect x="16" y="16" width="1504" height="846" fill="black"/>
 <rect x="1536" y="16" width="368" height="239" fill="black"/>
-<rect x="1536" y="271" width="368" height="96" fill="black"/>
 </mask></defs></svg>
 <div class="canvas-bg" aria-hidden="true"></div>
 
 <div class="hole-frame" style="left:1536px;top:16px;width:368px;height:239px"></div>
 <div class="hole-frame" style="left:16px;top:16px;width:1504px;height:846px"></div>
-<div class="hole-frame" style="left:1536px;top:271px;width:368px;height:96px">
-  <span class="chip chip-live" style="top:auto;bottom:-1px;transform:translateY(50%)"><span class="live-dot" aria-hidden="true"></span>Cam</span>
-</div>
 
 <div class="break-veil" id="veil1" style="left:1536px;top:16px;width:368px;height:239px">
   <div class="break-veil-inner"><h2>Break · stretch, water, eyes off screen</h2><div class="veil-time mono" id="veilTime1"></div></div>
@@ -245,7 +239,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;font
   <div class="eyebrow">On stream</div>
   <div class="oa-name" id="oaName"></div>
   <div class="oa-topic" id="oaTopic"></div>
-  <div class="oa-stats"><span>Focused today <em class="mono" id="oaFocus">0m</em></span><span>Sessions <em class="mono" id="oaSessions">0</em></span><span class="oa-kofi"><b>&#9749;</b> Support Floaty Touch <em class="mono">ko-fi.com/floatytouch</em></span></div>
+  <div class="oa-stats"><span>Focused today <em class="mono" id="oaFocus">0m</em></span><span>Sessions <em class="mono" id="oaSessions">0</em></span></div>
 </div>
 
 <div class="card np-body is-silent" id="npCard" style="left:1536px;top:699px;width:368px;height:365px">
@@ -311,7 +305,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;font
   </div>
 </div>
 
-<div class="card pomo" style="left:1536px;top:383px;width:368px;height:300px">
+<div class="card pomo" style="left:1536px;top:573px;width:368px;height:300px">
   <div class="eyebrow" style="align-self:flex-start">Pomodoro</div>
   <div class="pomo-hero">
     <div class="ring-wrap focus" id="ringWrap">
