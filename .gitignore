@@ -5,3 +5,4 @@ venv/
 node_modules/
 __pycache__/
 *.log
+stream-kit/themes/assets/thinh-face.png
